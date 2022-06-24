@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MusicRestAPI.Data;
 using MusicRestAPI.Models;
 using System;
@@ -20,14 +21,14 @@ namespace MusicRestAPI.Controllers
             _dbContext = dbContext;
         }
         [HttpGet]
-        public IActionResult GetAllSongs()
+        public async Task<IActionResult> GetAllSongs()
         {
-            return Ok(_dbContext.Songs.ToList());
+            return Ok(await _dbContext.Songs.ToListAsync());
         }
         [HttpGet("{id}")]
-        public IActionResult GetSongById(int id)
+        public async Task<IActionResult> GetSongById(int id)
         {
-            var existing = _dbContext.Songs.Find(id);
+            var existing = await _dbContext.Songs.FindAsync(id);
             if (existing == null)
             {
                 return NotFound("No record found against this id");
@@ -35,35 +36,35 @@ namespace MusicRestAPI.Controllers
             return Ok(existing);
         }
         [HttpPost]
-        public IActionResult AddSong([FromBody]Song song)
+        public async Task<IActionResult> AddSong([FromBody]Song song)
         {
-            _dbContext.Songs.Add(song);
+            await _dbContext.Songs.AddAsync(song);
             _dbContext.SaveChanges();
             return StatusCode(StatusCodes.Status201Created);
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateSong(int id, [FromBody]Song song)
+        public async Task<IActionResult> UpdateSong(int id, [FromBody]Song song)
         {
-            var existing = _dbContext.Songs.Find(id);
+            var existing = await _dbContext.Songs.FindAsync(id);
             if (existing==null)
             {
                 return NotFound("No record found against this id");
             }
             existing.Title = song.Title;
             existing.Language = song.Language;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return Ok("Record updated successfully");
         }
         [HttpDelete("{id}")]
-        public IActionResult DeleteSong(int id)
+        public async Task<IActionResult> DeleteSong(int id)
         {
-            var existing = _dbContext.Songs.Find(id);
+            var existing = await _dbContext.Songs.FindAsync(id);
             if (existing == null)
             {
                 return NotFound("No record found against this id");
             }
             _dbContext.Songs.Remove(existing);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return Ok("Record deleted successfully");
         }
     }

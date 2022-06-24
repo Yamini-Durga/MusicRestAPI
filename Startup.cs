@@ -30,6 +30,7 @@ namespace MusicRestAPI
         {
 
             services.AddControllers();
+            services.AddMvc().AddXmlSerializerFormatters();
             services.AddDbContext<SongsDbContext>(options => options.UseSqlServer(
                    Configuration.GetConnectionString("SongDbConn")
                 ));

@@ -36,22 +36,21 @@ namespace MusicRestAPI.Controllers
             return Ok(existing);
         }
         [HttpPost]
-        public async Task<IActionResult> AddSong([FromBody]Song song)
+        public async Task<IActionResult> AddSong([FromBody] Song song)
         {
             await _dbContext.Songs.AddAsync(song);
             _dbContext.SaveChanges();
             return StatusCode(StatusCodes.Status201Created);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSong(int id, [FromBody]Song song)
+        public async Task<IActionResult> UpdateSong(int id, [FromBody] Song song)
         {
             var existing = await _dbContext.Songs.FindAsync(id);
-            if (existing==null)
+            if (existing == null)
             {
                 return NotFound("No record found against this id");
             }
             existing.Title = song.Title;
-            existing.Language = song.Language;
             await _dbContext.SaveChangesAsync();
             return Ok("Record updated successfully");
         }

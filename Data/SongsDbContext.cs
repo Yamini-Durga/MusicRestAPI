@@ -12,5 +12,7 @@ namespace MusicRestAPI.Data
         public SongsDbContext(DbContextOptions<SongsDbContext> options) : base(options) { }
 
         public DbSet<Song> Songs { get; set; }
+        public DbSet<Artist> Artists { get; set; }
+        public DbSet<Album> Albums { get; set; }
     }
 }

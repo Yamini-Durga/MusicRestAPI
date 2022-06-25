@@ -21,9 +21,59 @@ namespace MusicRestAPI.Controllers
             _dbContext = dbContext;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllSongs()
+        public async Task<IActionResult> GetAllSongs(int? pageNumber, int? pageSize)
         {
-            return Ok(await _dbContext.Songs.ToListAsync());
+            int pn = pageNumber ?? 1;
+            int ps = pageSize ?? 1;
+            var songs = await _dbContext.Songs.Select(s => new
+            {
+                Id = s.Id,
+                Name = s.Title,
+                Duration = s.Duration,
+                ImageUrl = s.ImageUrl,
+                AudioUrl = s.AudioUrl
+            }).ToListAsync();
+            songs = songs.Skip((pn - 1) * ps).Take(ps).ToList();
+            return Ok(songs);
+        }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> FeaturedSongs()
+        {
+            var songs = await _dbContext.Songs.Where(s => s.IsFeatured == true).Select(s => new
+            {
+                Id = s.Id,
+                Name = s.Title,
+                Duration = s.Duration,
+                ImageUrl = s.ImageUrl,
+                AudioUrl = s.AudioUrl
+            }).ToListAsync();
+            return Ok(songs);
+        }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> NewSongs()
+        {
+            var songs = await _dbContext.Songs.OrderByDescending(s => s.UploadedDate).Select(s => new
+            {
+                Id = s.Id,
+                Name = s.Title,
+                Duration = s.Duration,
+                ImageUrl = s.ImageUrl,
+                AudioUrl = s.AudioUrl
+            }).Take(1).ToListAsync();
+            return Ok(songs);
+        }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> SearchSongs(string name)
+        {
+            var songs = await _dbContext.Songs.Where(s => s.Title.StartsWith(name)).Select(s => new
+            {
+                Id = s.Id,
+                Name = s.Title,
+                Duration = s.Duration,
+                ImageUrl = s.ImageUrl,
+                AudioUrl = s.AudioUrl
+            }).ToListAsync();
+            return Ok(songs);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSongById(int id)
@@ -38,6 +88,7 @@ namespace MusicRestAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddSong([FromBody] Song song)
         {
+            song.UploadedDate = DateTime.Now;
             await _dbContext.Songs.AddAsync(song);
             _dbContext.SaveChanges();
             return StatusCode(StatusCodes.Status201Created);

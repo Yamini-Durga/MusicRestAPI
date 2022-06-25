@@ -30,7 +30,6 @@ namespace MusicRestAPI
         {
 
             services.AddControllers();
-            services.AddMvc().AddXmlSerializerFormatters();
             services.AddDbContext<SongsDbContext>(options => options.UseSqlServer(
                    Configuration.GetConnectionString("SongDbConn")
                 ));
@@ -41,7 +40,7 @@ namespace MusicRestAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SongsDbContext dbContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -49,8 +48,6 @@ namespace MusicRestAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MusicRestAPI v1"));
             }
-
-            dbContext.Database.EnsureCreated();
 
             app.UseHttpsRedirection();
 
